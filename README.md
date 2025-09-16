@@ -13,14 +13,6 @@
 * База данных PostgreSQL и Redis для кэша
 * Полный контейнерный стек (Docker / Docker Compose)
 
-## Технологии
-* Runtime / Framework: .NET 9 / ASP.NET Core
-* Админ панель: Blazor WebAssembly (WASM)
-* База данных: PostgreSQL
-* Кэширование: Redis
-* Контейнеризация: Docker, Docker Compose
-* ORM: EF Core
-
 ## Структура
 * CounterStrikeItemsApi                    -> ASP.NET Core 9 Web API (entrypoint)
 * CounterStrikeItemsApi.Application        -> Сервисы, DTO, интерфейсы, маппинг
@@ -29,6 +21,14 @@
 * WebAdminPanel                            -> Админ панель на Blazor WASM
 * WorkerHost                               -> Хост для фоновых сервисов
 * Workers                                  -> Background services
+
+## Технологии
+* Runtime / Framework: .NET 9 / ASP.NET Core
+* Админ панель: Blazor WebAssembly (WASM)
+* База данных: PostgreSQL
+* Кэширование: Redis
+* Контейнеризация: Docker, Docker Compose
+* ORM: EF Core
 
 ## Быстрый старт (локально)
 1. Склонировать репозиторий:
@@ -70,7 +70,7 @@ docker-compose up -d --build
 ```
 
 ## Сборка
-Для CounterStrikeItemsApi.API и WorkerHost необходимо использовать переменные среды [Secret Manager](https://learn.microsoft.com/ru-ru/aspnet/core/security/app-secrets?view=aspnetcore-9.0&tabs=windows#secret-manager).
+Для `CounterStrikeItemsApi.API` и `WorkerHost` необходимо использовать переменные среды [Secret Manager](https://learn.microsoft.com/ru-ru/aspnet/core/security/app-secrets?view=aspnetcore-9.0&tabs=windows#secret-manager).
 ### CounterStrikeItemsApi.API:
 ```
 {
