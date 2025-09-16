@@ -1,0 +1,27 @@
+﻿@typeparam TModel
+
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="@Model" OnValidSubmit="Submit">
+            <DataAnnotationsValidator />
+            <MudStack Spacing="2">
+                @if (ChildContent is not null)
+                {
+                    @ChildContent(Model)
+                }
+            </MudStack>
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                <MudButton Variant="Variant.Text" OnClick="() => MudDialog.Cancel()">Cancel</MudButton>
+                <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public TModel Model { get; set; } = default!;
+    [Parameter] public RenderFragment<TModel>? ChildContent { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Model));
+}

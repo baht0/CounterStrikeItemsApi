@@ -1,0 +1,19 @@
+﻿@inject NavigationManager Navigation
+
+<div class="d-flex justify-center align-center" style="height: 80vh;">
+    <MudCard Class="pa-6" Style="max-width: 500px; text-align: center;">
+        <MudCardContent>
+            <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Error" Class="mb-3" />
+            <MudText Typo="Typo.h4" GutterBottom="true" Color="Color.Error">
+                404 - Page Not Found
+            </MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-4">
+                The page you're looking for might have been removed, renamed, or is temporarily unavailable.
+            </MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/items">
+                <MudIcon Icon="@Icons.Material.Filled.ArrowBack" Class="mr-1" />
+                Back to Main Page
+            </MudButton>
+        </MudCardContent>
+    </MudCard>
+</div>

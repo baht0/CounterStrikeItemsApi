@@ -1,0 +1,17 @@
+﻿@page "/logout"
+@layout AuthLayout
+
+@using WebAdminPanel.Services
+@using WebAdminPanel.Services.Auth
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject JwtAuthStateProvider AuthProvider
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        AuthProvider?.MarkUserAsLoggedOut();
+        Nav.NavigateTo("/login", true);
+    }
+}

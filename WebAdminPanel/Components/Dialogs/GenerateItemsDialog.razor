@@ -1,0 +1,56 @@
+﻿@using WebAdminPanel.Contracts
+@using WebAdminPanel.Services.Api
+
+@inject IReferenceApiFactory RefApiFactory
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <MudTextField @bind-Value="ItemName" Label="Name" Variant="Variant.Filled" Required="true" ReadOnly="true" />
+            <MudSelect T="Guid?" Style="min-width: 150px; font-size: smaller" Disabled="isLoading"
+                       Label="Exteriors" Variant="Variant.Filled"
+                       MultiSelection="true" Clearable="true" Dense="true"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       @bind-SelectedValues="_selectedExteriors">
+                @foreach (var o in Exteriors)
+                {
+                    <MudSelectItem T="Guid?" Value="@o.Id">@o.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Guid?" Style="min-width: 150px; font-size: smaller" Disabled="isLoading"
+                       Label="Categories" Variant="Variant.Filled"
+                       MultiSelection="true" Clearable="true" Dense="true"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       @bind-SelectedValues="_selectedCategories">
+                @foreach (var o in Categories)
+                {
+                    <MudSelectItem T="Guid?" Value="@o.Id" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Guid?" Style="min-width: 150px; font-size: smaller" Disabled="isLoading"
+                       Label="Qualities" Variant="Variant.Filled"
+                       MultiSelection="true" Clearable="true" Dense="true"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       @bind-SelectedValues="_selectedQualities">
+                @foreach (var o in Qualities)
+                {
+                    <MudSelectItem T="Guid?" Value="@((Guid?)o.Id)" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Guid?" Style="min-width: 150px; font-size: smaller" Disabled="isLoading"
+                       Label="Graffiti Colors" Variant="Variant.Filled"
+                       MultiSelection="true" Clearable="true" Dense="true"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       @bind-SelectedValues="_selectedGraffitiColors">
+                @foreach (var o in GraffitiColors)
+                {
+                    <MudSelectItem T="Guid?" Value="@o.Id" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+            <MudButton Variant="Variant.Text" OnClick="() => MudDialog.Cancel()">Cancel</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Submit">Generate</MudButton>
+        </MudStack>
+    </DialogContent>
+</MudDialog>

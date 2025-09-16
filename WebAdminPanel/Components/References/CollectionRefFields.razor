@@ -1,0 +1,37 @@
+﻿@using WebAdminPanel.Contracts.Api.References
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Models.DTOs.Reference.Collection
+@using WebAdminPanel.Services.Api
+@inherits ComponentBase
+
+@typeparam TModel
+
+@inject IReferenceApiFactory RefApiFactory
+
+<MudTextField @bind-Value="Model.Name" Label="Name" Required="true" Clearable="true"
+              Variant="Variant.Filled" />
+
+<MudSelect T="Guid" @bind-Value="Model.TypeId" Label="Collection Type" Variant="Variant.Filled"
+           Required="true" Dense="true">
+    @foreach (var o in CollectionTypes)
+    {
+        <MudSelectItem T="Guid" Value="@o.Id">@o.Name</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public CollectionUpdateDto Model { get; set; } = default!;
+
+    private List<ReferenceDto> CollectionTypes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        CollectionTypes = await RefApiFactory.GetClient<ICollectionTypeApi>().GetAll();
+
+        var first = CollectionTypes.FirstOrDefault();
+        if (first != null && Model.Name is null)
+            Model.TypeId = first.Id;
+
+        StateHasChanged();
+    }
+}

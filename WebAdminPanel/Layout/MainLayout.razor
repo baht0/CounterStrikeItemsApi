@@ -1,0 +1,50 @@
+﻿@using WebAdminPanel.Services
+@using WebAdminPanel.Services.UI
+@inherits LayoutComponentBase
+
+@inject ThemeService ThemeService
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Elevation="4">
+        <!-- Кнопка-бургер слева -->
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@GetThemeIcon()"
+                       Color="Color.Inherit"
+                       OnClick="ToggleTheme" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Variant="DrawerVariant.Responsive" Elevation="1" Color="Color.Default">
+        <MudNavMenu Bordered="true">
+            <MudText Typo="Typo.h6" Class="px-4 mt-4">My Application</MudText>
+            <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Secondary Text</MudText>
+            <MudDivider Class="my-2" />
+            <MudNavLink Href="/items" Icon="@Icons.Material.Filled.FormatListBulleted">ItemCommons</MudNavLink>
+            <MudNavLink Href="/references" Icon="@Icons.Material.Filled.LibraryBooks">References</MudNavLink>
+            <MudNavLink Href="/users" Icon="@Icons.Material.Filled.PeopleAlt">Users</MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavLink IconColor="Color.Error" Href="/logout" Icon="@Icons.Material.Filled.Logout">
+                <MudText Color="Color.Error">Logout</MudText>
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer Class="pa-4" MaxWidth="MaxWidth.False">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+    private void ToggleTheme() => ThemeService.ToggleTheme();
+
+    private string GetThemeIcon() => ThemeService.IsDarkMode
+        ? Icons.Material.Filled.LightMode
+        : Icons.Material.Filled.DarkMode;
+}

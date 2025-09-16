@@ -1,0 +1,53 @@
+﻿@page "/login"
+
+@layout AuthLayout
+@attribute [AllowAnonymous]
+
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Authorization
+@using WebAdminPanel.Contracts.Api
+@using WebAdminPanel.Models.DTOs.Auth
+@using WebAdminPanel.Services
+@using WebAdminPanel.Services.Auth
+
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject JwtAuthStateProvider AuthProvider
+@inject IAuthApi AuthApi
+
+<MudPaper Class="pa-6 mx-auto mt-12" MaxWidth="400px" Elevation="8">
+
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-4">Login</MudText>
+
+    <EditForm Model="@authModel" OnValidSubmit="@HandleLogin">
+        <MudStack Spacing="2">
+
+            <MudTextField @bind-Value="authModel.Username"
+                          Label="Username"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Immediate="true" />
+
+            <MudTextField @bind-Value="authModel.Password"
+                          Label="Password"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Password"
+                          Required="true"
+                          Immediate="true" />
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       ButtonType="ButtonType.Submit">
+                Login
+            </MudButton>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <MudText Color="Color.Error" Align="Align.Center">@errorMessage</MudText>
+            }
+        </MudStack>
+    </EditForm>
+
+</MudPaper>

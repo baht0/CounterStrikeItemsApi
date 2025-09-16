@@ -1,0 +1,15 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 300px;">
+            <MudImage Src="@ImageUrl" Elevation="25" Class="rounded-lg" Style="max-width: 100%; max-height: 100%;" />
+        </div>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public string? ImageUrl { get; set; }
+}

@@ -1,0 +1,12 @@
+﻿@using WebAdminPanel.Models.DTOs.Reference
+@typeparam TModel
+@inherits ComponentBase
+
+<MudTextField @bind-Value="Model.Name" Label="Name" Required="true" Clearable="true"
+              Variant="Variant.Filled" />
+<MudTextField @bind-Value="Model.HexColor" Label="HexColor" Clearable="true"
+              Variant="Variant.Filled" />
+
+@code {
+    [Parameter] public ReferenceColorUpdateDto Model { get; set; } = default!;
+}

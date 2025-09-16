@@ -1,0 +1,221 @@
+﻿@page "/item/{Slug}"
+@page "/items/add"
+
+@using AutoMapper
+@using WebAdminPanel.Components
+@using WebAdminPanel.Contracts
+@using WebAdminPanel.Models.DTOs.ItemCommons
+@using WebAdminPanel.Models.DTOs.Reference.Collection
+@using WebAdminPanel.Models.DTOs.Reference.Subtype
+@using WebAdminPanel.Models.DTOs.Reference.ItemType
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Services.Api
+@using WebAdminPanel.Services.UI
+@using WebAdminPanel.ViewModels
+
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject IReferenceApiFactory RefApiFactory
+@inject IMapper _mapper
+@inject ISnackbar Snackbar
+
+<PageTitle>@PageTitle</PageTitle>
+
+@if (isLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+}
+else if (isNotFound)
+{
+    <CustomNotFound />
+}
+else
+{
+    <MudStack Row="true" Spacing="3">
+        <!-- Левая колонка: форма фиксированной ширины -->
+        <MudPaper Class="pa-4" Style="width: 500px; overflow-y: auto; flex-shrink: 0; max-height: max-content;">
+            <EditForm Model="@itemViewModel" OnValidSubmit="SubmitSaveItemAsync">
+                <DataAnnotationsValidator />
+                <MudStack Spacing="3">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                        <MudText Typo="Typo.h5">ItemCommon</MudText>
+                        @if (isEditMode)
+                        {
+                            <MudIconButton Size="@Size.Medium"
+                                           Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           Class="pa-0" OnClick="DeleteItemCommonDialogAsync" />
+                        }
+                    </MudStack>
+                    <MudTextField @bind-Value="itemViewModel.Id" Label="Id" Variant="Variant.Filled" Required="true" ReadOnly="true" />
+                    <MudTextField @bind-Value="itemViewModel.Name" Label="Name" Variant="Variant.Filled" Required="true" Clearable="true" />
+                    <MudTextField @bind-Value="itemViewModel.Slug" Label="Slug" Variant="Variant.Filled" Required="true" ReadOnly="true" />
+
+                    <MudAutocomplete T="ItemTypeDto"
+                                     Label="Type" Required="true"
+                                     @bind-Value="itemViewModel.Type"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(Types)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(Types)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+                    <MudAutocomplete T="SubtypeDto"
+                                     Label="Subtype" Required="true"
+                                     @bind-Value="itemViewModel.Subtype"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(Subtypes)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(Subtypes)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+                    <MudAutocomplete T="CollectionDto"
+                                     Label="Collection"
+                                     @bind-Value="itemViewModel.Collection"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(Collections)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(Collections)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+                    <MudAutocomplete T="ReferenceDto"
+                                     Label="Tournament"
+                                     @bind-Value="itemViewModel.Tournament"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(Tournaments)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(Tournaments)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+                    <MudAutocomplete T="ReferenceDto"
+                                     Label="Team"
+                                     @bind-Value="itemViewModel.Team"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(Teams)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(Teams)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+                    <MudAutocomplete T="ReferenceDto"
+                                     Label="Professional Player"
+                                     @bind-Value="itemViewModel.ProfessionalPlayer"
+                                     SearchFunc="@AutocompleteHelper.GetSearchFunc(ProfessionalPlayers)"
+                                     ToStringFunc="@AutocompleteHelper.GetToStringFunc(ProfessionalPlayers)"
+                                     Clearable="true" Dense="true" Variant="Variant.Filled"
+                                     CoerceText="true" Placeholder="Search..." />
+
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Primary"
+                               ButtonType="ButtonType.Submit">Save In DataBase</MudButton>
+                </MudStack>
+            </EditForm>
+        </MudPaper>
+
+        <!-- Правая колонка: таблица занимает оставшееся место -->
+        <MudTabs Style="flex-grow: 1; overflow-y: auto;"
+                 Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+            <!-- Items -->
+            <MudTabPanel Text="Items">
+                <MudTable Items="itemViewModel.Items" FixedHeader="true" FixedFooter="true"
+                          Dense="true" Hover="true" Elevation="0" Bordered="true" RowsPerPage="15"
+                          Breakpoint="Breakpoint.Sm" Height="575px" SortLabel="Sort By">
+                    <ToolBarContent>
+                        <MudStack Spacing="2" Row="true">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success"
+                                       StartIcon="@Icons.Material.Filled.AddCircle"
+                                       OnClick="AddItemDialogAsync">Add new</MudButton>
+                            <MudTooltip Text="Generate new items with parameters">
+                                <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled="@(string.IsNullOrWhiteSpace(itemViewModel.Name))"
+                                           StartIcon="@Icons.Material.Filled.PlaylistAdd"
+                                           OnClick="GenerateItemDialogAsync">Generate</MudButton>
+                            </MudTooltip>
+                        </MudStack>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh Width="10px"><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.Status)">Status</MudTableSortLabel></MudTh>
+                        <MudTh Width="10px"><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.ImageId)">Image</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<ItemViewModel, object>(x => x.Name)">Name</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.ExteriorName)">Exterior</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.CategoryName)">Category</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.QualityName)">Quality</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ItemViewModel, object?>(x => x.GraffitiColorName)">Graffiti Color</MudTableSortLabel></MudTh>
+                        <MudTh Width="10px"></MudTh>
+                        <MudTh Width="10px"></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudTooltip Text="@GetTooltipText(context)">
+                                @GetStatusIcon(context)
+                            </MudTooltip>
+                        </MudTd>
+                        <MudTd DataLabel="Image">
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Image" Class="pa-0" OnClick="@(() => ImageDialogAsync(context))"
+                                           Disabled="@(context.ImageId == null)" />
+                        </MudTd>
+                        <MudTd DataLabel="Name">
+                            <MudLink Style="font-size: small"
+                                     Href="@($"https://steamcommunity.com/market/listings/730/{context.Name}")">
+                                @context.Name
+                            </MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Exterior">@context.ExteriorName</MudTd>
+                        <MudTd DataLabel="Category" Style="@($"color: {context.CategoryHexColor}")">@context.CategoryName</MudTd>
+                        <MudTd DataLabel="Quality" Style="@($"color: {context.QualityHexColor}")">@context.QualityName</MudTd>
+                        <MudTd DataLabel="Graffiti Color" Style="@($"color: {context.GraffitiColorHexColor}")">@context.GraffitiColorName</MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@(() => EditDialogAsync(context))" />
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => DeleteItemDialogAsync(context))" />
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager HideRowsPerPage="true" />
+                    </PagerContent>
+                </MudTable>
+            </MudTabPanel>
+            <!-- Containers -->
+            <MudTabPanel Text="Containers" Disabled="@(itemViewModel.Type.Name == "Container")">
+                <MudTable Items="itemViewModel.Containers" FixedHeader="true" Height="575px"
+                          Dense="true" Hover="true" Elevation="0" Bordered="true" RowsPerPage="15"
+                          Breakpoint="Breakpoint.Sm" Style="width: 100%;" SortLabel="Sort By">
+                    <ToolBarContent>
+                        <MudStack Spacing="2" Row="true">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success"
+                                       StartIcon="@Icons.Material.Filled.AddCircle"
+                                       OnClick="AddContainerDialogAsync">Add new</MudButton>
+                        </MudStack>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh Width="10px"><MudTableSortLabel SortBy="new Func<ReferenceViewModel, object?>(x => x.Status)">Status</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ReferenceViewModel, object>(x => x.Id)">ID</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<ReferenceViewModel, object>(x => x.Name)">Name</MudTableSortLabel></MudTh>
+                        <MudTh>ItemCommon</MudTh>
+                        <MudTh Width="10px"></MudTh>
+                        <MudTh Width="10px"></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudTooltip Text="@GetTooltipText(context)">
+                                @GetStatusIcon(context)
+                            </MudTooltip>
+                        </MudTd>
+                        <MudTd DataLabel="ID">@context.Id</MudTd>
+                        <MudTd DataLabel="Name">
+                            <MudLink Style="font-size: small"
+                                     Href="@($"https://steamcommunity.com/market/listings/730/{context.Name}")">
+                                @context.Name
+                            </MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Slug">
+                            <MudLink Style="font-size: small"
+                                     Href="@($"/item/{context.Slug}")">
+                                Open Page
+                            </MudLink>
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"
+                                           OnClick="@(() => EditContainerDialogAsync(context))" />
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0"
+                                           OnClick="@(() => DeleteContainerDialogAsync(context))" />
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager HideRowsPerPage="true" />
+                    </PagerContent>
+                </MudTable>
+            </MudTabPanel>
+        </MudTabs>
+    </MudStack>
+}

@@ -1,0 +1,208 @@
+﻿@page "/items"
+@page "/"
+
+@using System.Linq
+@using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
+@using WebAdminPanel.Contracts
+@using WebAdminPanel.Models.DTOs.ItemCommons
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Models.DTOs.Reference.Collection
+@using WebAdminPanel.Models.DTOs.Reference.Subtype
+@using WebAdminPanel.Models.DTOs.Reference.ItemType
+@using WebAdminPanel.Services.Api
+@using WebAdminPanel.Services.UI
+
+@inject NavigationManager NavigationManager
+@inject IReferenceApiFactory RefApiFactory
+@inject ISnackbar Snackbar
+
+<PageTitle>ItemCommons</PageTitle>
+
+<MudPaper Class="mb-2">
+    <MudStack Spacing="2">
+        <MudCollapse Expanded="_expanded">
+            <MudChipSet T="string" Class="pa-4">
+                @if (_selectedTypes.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2">Types</MudText>
+                    @foreach (var item in _selectedTypes)
+                    {
+                        <MudChip Closeable="true" T="ItemTypeDto" Value="@item"
+                                 OnClose="@(AutocompleteHelper.OnChipClose<ItemTypeDto>(_selectedTypes))">
+                            @SlugToName(item.Slug, Types)
+                        </MudChip>
+                    }
+                }
+                @if (_selectedSubtypes.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2">Subtypes</MudText>
+                    @foreach (var item in _selectedSubtypes)
+                    {
+                        <MudChip Closeable="true" T="SubtypeDto" Value="@item"
+                                 OnClose="@(AutocompleteHelper.OnChipClose<SubtypeDto>(_selectedSubtypes))">
+                            @SlugToName(item.Slug, Subtypes)
+                        </MudChip>
+                    }
+                }
+                @if (_selectedQualities.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2">Qualities</MudText>
+                    @foreach (var item in _selectedQualities)
+                    {
+                        <MudChip Closeable="true" T="ReferenceColorDto" Value="@item"
+                                 OnClose="@(AutocompleteHelper.OnChipClose<ReferenceColorDto>(_selectedQualities))">
+                            @SlugToName(item.Slug, Qualities)
+                        </MudChip>
+                    }
+                }
+                @if (_selectedCollections.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2">Collections</MudText>
+                    @foreach (var item in _selectedCollections)
+                    {
+                        <MudChip Closeable="true" T="CollectionDto" Value="@item"
+                                 OnClose="@(AutocompleteHelper.OnChipClose<CollectionDto>(_selectedCollections))">
+                            @SlugToName(item.Slug, Collections)
+                        </MudChip>
+                    }
+                }
+            </MudChipSet>
+            <MudDivider />
+        </MudCollapse>
+        <MudButton StartIcon="@(_expanded? @Icons.Material.Filled.KeyboardArrowUp : @Icons.Material.Filled.KeyboardArrowDown)" OnClick="OnExpandCollapseClick"
+                   Disabled="@(_selectedTypes.Count == 0
+                               && _selectedSubtypes.Count == 0
+                               && _selectedQualities.Count == 0
+                               && _selectedCollections.Count == 0)">
+            Filters [@(_selectedTypes.Count + _selectedSubtypes.Count + _selectedQualities.Count + _selectedCollections.Count)]
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+<MudTable ServerData="LoadServerData" @ref="table"
+          FullWidth="true" 
+          RowClass="cursor-pointer"
+          OnRowClick="@((TableRowClickEventArgs<ItemCommonFilteredDto> e) => RowClickEvent(e))" RowClassFunc="@SelectedRowClassFunc"
+          Virtualize="true" Hover="true" Dense="true" Bordered="true"
+          Loading="isLoading" SortLabel="Sort By"
+          FixedHeader="true" Height="650px">
+    <ToolBarContent>
+        <div style="display: flex; align-items: flex-end; width: 100%; gap: 8px;">
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.AddBox" Href="/item/add">Add New</MudButton>
+            <MudTextField @bind-Value="SearchText"
+                          Placeholder="Input name..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Class="flex-grow-1" />
+            <MudAutocomplete T="ItemTypeDto" @ref="typesAutocomplete"
+                             Label="Types"
+                             Dense="true"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             DebounceInterval="200"
+                             MaxItems="50"
+                             SearchFunc="@AutocompleteHelper.GetSearchFunc(Types)"
+                             ValueChanged="@(AutocompleteHelper.OnSelected(_selectedTypes, typesAutocomplete))"
+                             ToStringFunc="@AutocompleteHelper.GetToStringFunc(Types)" />
+            <MudAutocomplete T="SubtypeDto" @ref="subtypeAutocomplete"
+                             Label="Subtypes"
+                             Dense="true"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             DebounceInterval="200"
+                             MaxItems="50"
+                             SearchFunc="@AutocompleteHelper.GetSearchFunc(Subtypes)"
+                             ValueChanged="@(AutocompleteHelper.OnSelected(_selectedSubtypes, subtypeAutocomplete))"
+                             ToStringFunc="@AutocompleteHelper.GetToStringFunc(Subtypes)" />
+            <MudAutocomplete T="ReferenceColorDto" @ref="qualityAutocomplete"
+                             Label="Qualities"
+                             Dense="true"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             DebounceInterval="200"
+                             MaxItems="50"
+                             SearchFunc="@AutocompleteHelper.GetSearchFunc(Qualities)"
+                             ValueChanged="@(AutocompleteHelper.OnSelected(_selectedQualities, qualityAutocomplete))"
+                             ToStringFunc="@AutocompleteHelper.GetToStringFunc(Qualities)">
+                <ItemTemplate Context="item">
+                    <div style="@($"color: {item.HexColor ?? "inherit"}")">
+                        @item.Name
+                    </div>
+                </ItemTemplate>
+            </MudAutocomplete>
+            <MudAutocomplete T="CollectionDto" @ref="collectionAutocomplete"
+                             Label="Collections"
+                             Dense="true"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             DebounceInterval="200"
+                             MaxItems="50"
+                             SearchFunc="@AutocompleteHelper.GetSearchFunc(Collections)"
+                             ValueChanged="@(AutocompleteHelper.OnSelected(_selectedCollections, collectionAutocomplete))"
+                             ToStringFunc="@AutocompleteHelper.GetToStringFunc(Collections)" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ManageSearch" OnClick="ReloadTable">Apply</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Clear" OnClick="ClearFilters"
+                       Disabled="@(string.IsNullOrWhiteSpace(SearchText)
+                                   && _selectedTypes.Count == 0
+                                   && _selectedSubtypes.Count == 0
+                                   && _selectedQualities.Count == 0
+                                   && _selectedCollections.Count == 0)">Clear</MudButton>
+        </div>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="name_fld" T="ItemCommonFilteredDto">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="type_fld" T="ItemCommonFilteredDto">Type</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="subtype_fld" T="ItemCommonFilteredDto">Subtype</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="coll_fld" T="ItemCommonFilteredDto">Collection</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="cont_fld" T="ItemCommonFilteredDto">FoundIn</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="var_fld" T="ItemCommonFilteredDto">Variants</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">
+            <MudLink Href="@($"/item/{context.Slug}")">@context.Name</MudLink>
+        </MudTd>
+        <MudTd DataLabel="Type">@context.Type?.Name</MudTd>
+        <MudTd DataLabel="Subtype">@context.Subtype?.Name</MudTd>
+        <MudTd DataLabel="Collection">@context.Collection?.Name</MudTd>
+        <MudTd DataLabel="FoundIn">@context.FoundIn</MudTd>
+        <MudTd DataLabel="Variants">@context.Variants</MudTd>
+    </RowTemplate>
+    <ChildRowContent>
+        @if (expandedId == context.Id)
+        {
+            <MudTd Style="height:100%;">
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                    <MudImage Src="@(ProcessedImageUrl(context.ImageId))"
+                              Elevation="25"
+                              Class="rounded-lg"
+                              Style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+                </div>
+            </MudTd>
+            <MudTd ColSpan="5">
+                <MudText Typo="Typo.subtitle2">Categories</MudText>
+                @foreach (var category in context.Categories)
+                {
+                    <MudChip T="string" Variant="Variant.Text">@category</MudChip>
+                }
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Qualities</MudText>
+                @foreach (var quality in context.Qualities)
+                {
+                    <MudChip T="string" Variant="Variant.Text">@quality</MudChip>
+                }
+                @if (context.Exteriors.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle2" Class="mt-2">Exteriors</MudText>
+                    @foreach (var exterior in context.Exteriors)
+                    {
+                        <MudChip T="string" Variant="Variant.Text">@exterior</MudChip>
+                    }
+                }
+            </MudTd>
+        }
+    </ChildRowContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

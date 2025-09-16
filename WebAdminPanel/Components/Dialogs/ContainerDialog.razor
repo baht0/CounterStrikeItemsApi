@@ -1,0 +1,32 @@
+﻿@using AutoMapper
+@using MudBlazor;
+@using WebAdminPanel.Contracts
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Services.Api
+@using WebAdminPanel.Services.UI
+@using WebAdminPanel.ViewModels
+
+@inject MudBlazor.IDialogService DialogService
+@inject IReferenceApiFactory RefApiFactory
+@inject IMapper _mapper
+
+<EditForm Model="@Container" OnValidSubmit="Submit">
+    <MudDialog Class="p-4">
+        <DialogContent>
+            <MudStack Spacing="2">
+                <MudAutocomplete T="ReferenceViewModel"
+                                 Label="Container" Required="true"
+                                 @bind-Value="selectedContainer"
+                                 SearchFunc="@(AutocompleteHelper.GetSearchFunc<ReferenceViewModel>(Containers))"
+                                 ToStringFunc="@(AutocompleteHelper.GetToStringFunc<ReferenceViewModel>(Containers))"
+                                 Clearable="true" Dense="true" Variant="Variant.Filled"
+                                 CoerceText="false" Placeholder="Search..." />
+
+            </MudStack>
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                <MudButton Variant="Variant.Text" OnClick="() => MudDialog.Cancel()">Cancel</MudButton>
+                <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+            </MudStack>
+        </DialogContent>
+    </MudDialog>
+</EditForm>

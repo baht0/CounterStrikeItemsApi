@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
+@using WebAdminPanel.Components
+@using WebAdminPanel.Pages
+@using WebAdminPanel.Services
+@using WebAdminPanel.Services.UI
+
+@inject ThemeService ThemeService
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<CascadingAuthenticationState>
+    <MudThemeProvider @ref="_mudThemeProvider" IsDarkMode="@ThemeService.IsDarkMode" />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="HandleNavigation">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <CustomNotFound />
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

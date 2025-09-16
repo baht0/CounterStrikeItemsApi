@@ -1,0 +1,44 @@
+﻿@using WebAdminPanel.Contracts.Api
+@using WebAdminPanel.Contracts.Api.References
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Models.DTOs.Reference.ItemType
+@using WebAdminPanel.Models.DTOs.Reference.Subtype
+@using WebAdminPanel.Services.Api
+@inherits ComponentBase
+
+@typeparam TModel
+@inject IReferenceApiFactory RefApiFactory
+
+<MudTextField @bind-Value="Model.Name" Label="Name" Required="true" Clearable="true"
+              Variant="Variant.Filled"/>
+<MudSelect T="Guid"
+           MultiSelection="true" Required="true"
+           MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+           @bind-SelectedValues="SelectedTypeIds"
+           Label="Type"
+           Variant="Variant.Filled"
+           Clearable="true" Dense="true">
+    @foreach (var o in Types)
+    {
+        <MudSelectItem T="Guid" Value="@o.Id">@o.Name</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public SubtypeUpdateDto Model { get; set; } = default!;
+
+    private List<ItemTypeDto> Types = new();
+    private IEnumerable<Guid> SelectedTypeIds
+    {
+        get => Model.ItemTypes ?? Enumerable.Empty<Guid>();
+        set => Model.ItemTypes = value?.ToList() ?? new List<Guid>();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Types = await RefApiFactory.GetClient<IItemTypeApi>().GetAll();
+        StateHasChanged();
+    }
+    private static string GetMultiSelectionText(List<string> selectedValues)
+        => selectedValues.Count > 0 ? $"Selected: {selectedValues.Count}" : string.Empty;
+}

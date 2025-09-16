@@ -1,0 +1,71 @@
+﻿@page "/users"
+
+@using CounterStrikeItemsApi.Application.DTOs.SteamUsers
+@using WebAdminPanel.Services.Api
+
+@inject NavigationManager Navigation
+@inject IReferenceApiFactory RefApiFactory
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Steam Users</PageTitle>
+
+<MudTable ServerData="LoadServerData" @ref="table"
+          FullWidth="true"
+          Virtualize="true" Hover="true" Dense="true" Bordered="true"
+          Loading="isLoading" SortLabel="Sort By"
+          FixedHeader="true" Height="700px">
+    <ToolBarContent>
+        <div style="display: flex; align-items: flex-end; width: 100%; gap: 8px;">
+            <MudText Typo="Typo.h6">Steam Users</MudText>
+            <MudTextField @bind-Value="SearchText"
+                          Clearable="true"
+                          Placeholder="Input nickname..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          OnClearButtonClick="ClearFilters"
+                          IconSize="Size.Medium"
+                          Class="flex-grow-1" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ManageSearch" OnClick="ReloadTable">Apply</MudButton>
+        </div>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh Width="400px">ID</MudTh>
+        <MudTh Width="10px">Avatar</MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_fld" T="SteamUserDto">Nickname</MudTableSortLabel></MudTh>
+        <MudTh>Steam64ID</MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ban_fld" T="SteamUserDto">Banned</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="crt_fld" T="SteamUserDto">Created</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="upd_fld" T="SteamUserDto">Updated</MudTableSortLabel></MudTh>
+        <MudTh Width="10px"></MudTh>
+        <MudTh Width="10px"></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Image" Class="pa-0"
+                           OnClick="@(() => ImageDialogAsync(context))" />
+        </MudTd>
+        <MudTd DataLabel="Nickname">
+            <MudLink Href="@($"https://steamcommunity.com/profiles/{context.SteamId}")">@context.Nickname</MudLink>
+        </MudTd>
+        <MudTd DataLabel="Steam64ID">@context.SteamId</MudTd>
+        <MudTd DataLabel="Banned">
+            <MudCheckBox ReadOnly="true" @bind-Value="context.IsBanned" />
+        </MudTd>
+        <MudTd DataLabel="Created">@context.CreatedAt</MudTd>
+        <MudTd DataLabel="Updated">@context.UpdatedAt</MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Medium" Class="pa-0" Color="@(context.IsBanned? Color.Info: Color.Warning)"
+                           Icon="@(context.IsBanned? Icons.Material.Filled.Restore: Icons.Material.Rounded.Block)"
+                           OnClick="@(() => BanUserDialogAsync(context))" />
+        </MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0"
+                           OnClick="@(() => DeleteUserDialogAsync(context))" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

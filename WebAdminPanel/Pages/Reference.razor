@@ -1,0 +1,28 @@
+﻿@page "/references"
+
+@using AutoMapper
+@using WebAdminPanel.Contracts
+@using WebAdminPanel.Contracts.Api.References
+@using WebAdminPanel.Models
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Services.Api
+
+@inject IReferenceApiFactory RefApiFactory
+@inject IMapper Mapper
+
+<PageTitle>Reference tables</PageTitle>
+
+<MudStack Spacing="2">
+    <MudSelect T="string" Variant="Variant.Outlined" Label="Select table"
+               Dense="true" @bind-Value="_selectedKey">
+        @foreach (var key in _views.Keys.Order())
+        {
+            <MudSelectItem Value="@key">@key</MudSelectItem>
+        }
+    </MudSelect>
+
+    @if (_selectedKey is not null && _views.TryGetValue(_selectedKey, out var view))
+    {
+        @view
+    }
+</MudStack>

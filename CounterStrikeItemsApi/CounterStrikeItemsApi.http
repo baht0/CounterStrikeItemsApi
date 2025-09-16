@@ -1,0 +1,6 @@
+@CounterStrikeItemsApi_HostAddress = http://localhost:5082
+
+GET {{CounterStrikeItemsApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,53 @@
+﻿@using MudBlazor;
+@using WebAdminPanel.Contracts
+@using WebAdminPanel.Models.DTOs.Reference
+@using WebAdminPanel.Services.Api
+@using WebAdminPanel.ViewModels
+
+@inject MudBlazor.IDialogService DialogService
+@inject IReferenceApiFactory RefApiFactory
+
+<EditForm Model="@Item" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <MudDialog Class="p-4">
+        <DialogContent>
+            <MudStack Spacing="2">
+                @if (Item.Status != ItemStatus.NewItem)
+                {
+                    <MudTextField @bind-Value="Item.Id" Label="Id" Variant="Variant.Filled" Required="true" ReadOnly="true" />
+                }
+                <MudTextField @bind-Value="Item.Name" Label="Name" Variant="Variant.Filled" Required="true" ReadOnly="true" />
+                <MudTextField @bind-Value="Item.ImageId" Label="Image Id" Variant="Variant.Filled" Clearable="true" />
+                <MudSelect T="Guid?" Label="Exteriors" Variant="Variant.Filled" @bind-Value="Item.ExteriorId" Clearable="true" Dense="true">
+                    @foreach (var o in Exteriors)
+                    {
+                        <MudSelectItem T="Guid?" Value="@o.Id">@o.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="Guid?" Label="Categories" Variant="Variant.Filled" @bind-Value="Item.CategoryId" Clearable="true" Dense="true">
+                    @foreach (var o in Categories)
+                    {
+                        <MudSelectItem T="Guid?" Value="@o.Id" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="Guid?" Label="Qualities" Variant="Variant.Filled" @bind-Value="Item.QualityId" Clearable="true" Dense="true">
+                    @foreach (var o in Qualities)
+                    {
+                        <MudSelectItem T="Guid?" Value="@o.Id" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="Guid?" Label="Graffiti Colors" Variant="Variant.Filled" @bind-Value="Item.GraffitiColorId" Clearable="true" Dense="true">
+                    @foreach (var o in GraffitiColors)
+                    {
+                        <MudSelectItem T="Guid?" Value="@o.Id" Style="@($"color: {o.HexColor}")">@o.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                <MudButton Variant="Variant.Text" OnClick="() => MudDialog.Cancel()">Cancel</MudButton>
+                <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+            </MudStack>
+        </DialogContent>
+    </MudDialog>
+</EditForm>

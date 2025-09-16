@@ -1,0 +1,68 @@
+﻿@using WebAdminPanel.Models
+@using WebAdminPanel.Components.Dialogs
+
+@typeparam TDto
+@typeparam TCreateDto
+@typeparam TUpdateDto
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudTable Items="FilteredItems" Class="mt-2" FixedHeader="true" FullWidth="true" SortLabel="Sort By"
+          Height="615px" Virtualize="true" Hover="true" Dense="true" Bordered="true">
+    <ToolBarContent>
+        <div style="display: flex; align-items: flex-end; width: 100%; gap: 8px;">
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.AddBox" OnClick="Create">Add New</MudButton>
+            <MudTextField @bind-Value="_search"
+                          Placeholder="Search..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Dense="true" Immediate="true" Clearable="true"
+                          OnDebouncedValueChanged="OnSearchChanged"
+                          DebounceInterval="300"/>
+        </div>
+    </ToolBarContent>
+    <HeaderContent>
+        @foreach (var col in _columns)
+        {
+            <MudTh Style="@(!string.IsNullOrEmpty(col.Width) ? $"width:{col.Width}" : null)">
+                @if (col.SortByFunc != null)
+                {
+                    <MudTableSortLabel SortBy="col.SortByFunc">
+                        @col.Title
+                    </MudTableSortLabel>
+                }
+                else
+                {
+                    @col.Title
+                }
+            </MudTh>
+        }
+        <MudTh Width="10px"></MudTh>
+        <MudTh Width="10px"></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        @foreach (var col in _columns)
+        {
+            <MudTd>
+                @if (col.Template != null)
+                {
+                    @col.Template(context)
+                }
+                else
+                {
+                    @(col.ValueSelector?.Invoke(context))
+                }
+            </MudTd>
+        }
+        <MudTd>
+            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@(() => Edit(context))" />
+        </MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => Delete(context))" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 25, 50, 100, int.MaxValue }" />
+    </PagerContent>
+</MudTable>

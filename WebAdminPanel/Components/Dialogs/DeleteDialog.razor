@@ -1,0 +1,18 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">Delete</MudButton>
+        </MudStack>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public string? ContentText { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}
