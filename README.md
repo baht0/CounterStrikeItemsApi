@@ -14,13 +14,13 @@
 * Полный контейнерный стек (Docker / Docker Compose)
 
 ## Структура
-* CounterStrikeItemsApi                    -> ASP.NET Core 9 Web API (entrypoint)
-* CounterStrikeItemsApi.Application        -> Сервисы, DTO, интерфейсы, маппинг
-* CounterStrikeItemsApi.Domain             -> Сущности, интерфейсы
-* CounterStrikeItemsApi.Infrastructure     -> EF Core, репозитории, фабрики
-* WebAdminPanel                            -> Админ панель на Blazor WASM
-* WorkerHost                               -> Хост для фоновых сервисов
-* Workers                                  -> Background services
+* __CounterStrikeItemsApi__                    -> ASP.NET Core 9 Web API (entrypoint)
+* __CounterStrikeItemsApi.Application__        -> Сервисы, DTO, интерфейсы, маппинг
+* __CounterStrikeItemsApi.Domain__             -> Сущности, интерфейсы
+* __CounterStrikeItemsApi.Infrastructure__     -> EF Core, репозитории, фабрики
+* __WebAdminPanel__                            -> Админ панель на Blazor WASM
+* __WorkerHost__                               -> Хост для фоновых сервисов
+* __Workers__                                  -> Background services
 
 ## Технологии
 * Runtime / Framework: .NET 9 / ASP.NET Core
@@ -31,12 +31,12 @@
 * ORM: EF Core
 
 ## Быстрый старт (локально)
-1. Склонировать репозиторий:
+__1.__ Склонировать репозиторий:
 ```
 git clone https://github.com/baht0/CounterStrikeItemsApi.git
 cd CounterStrikeItemsApi
 ```
-2. Выполнить миграцию в директории проекта `*.sln`:
+__2.__ Выполнить миграцию в директории проекта `*.sln`:
 ```
 dotnet ef migrations add InitialCreate `
   --project CounterStrikeItemsApi.Infrastructure `
@@ -46,7 +46,7 @@ dotnet ef database update `
   --project CounterStrikeItemsApi.Infrastructure `
   --startup-project CounterStrikeItemsApi
 ```
-3. Создать `.env.docker`:
+__3.__ Создать `.env.docker`:
 ```
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DbConnection=Host=<CHANGE>;Port=<CHANGE>;Database=<CHANGE>;Username=<CHANGE>;Password=<CHANGE>
@@ -58,13 +58,13 @@ Jwt__Issuer=<CHANGE>
 Jwt__Audience=<CHANGE>
 Steam__ApiKey=<CHANGE>
 ```
-4. Заменить API URL на ваш в `appsettings.json`, `appsettings.Development.json` и `appsettings.Production.json`:
+__4.__ Заменить API URL на ваш в `appsettings.json`, `appsettings.Development.json` и `appsettings.Production.json`:
 ```
 {
   "ApiUrl": "https://localhost:5000/api"
 }
 ```
-5. Собрать через Docker Compose:
+__5.__ Собрать через Docker Compose:
 ```
 docker-compose up -d --build
 ```
@@ -94,9 +94,9 @@ docker-compose up -d --build
 ```
 ## Библиотеки / NuGet-зависимости
 Дополнительные используемые библиотеки помимо основных:
-* AutoMapper — маппинг DTO ↔ сущности, проекция данных в слое приложения.
-* HtmlAgilityPack — парсинг/скрейпинг HTML (парсеры страниц с ценами, метаданными и т.п.).
-* AspNet.Security.OpenId.Steam — провайдер авторизации через Steam.
-* MudBlazor — UI-компоненты для Blazor WASM (админ-панель).
-* Polly — устойчивость HTTP-клиентов: retry, circuit-breaker, bulkhead, таймауты (worker host).
-* Refit / Refit.HttpClientFactory — декларативные HTTP-клиенты с интеграцией в IHttpClientFactory (админ-панель).
+* __AutoMapper__ — маппинг DTO ↔ сущности, проекция данных в слое приложения.
+* __HtmlAgilityPack__ — парсинг/скрейпинг HTML (парсеры страниц с ценами, метаданными и т.п.).
+* __AspNet.Security.OpenId.Steam__ — провайдер авторизации через Steam.
+* __MudBlazor__ — UI-компоненты для Blazor WASM (админ-панель).
+* __Polly__ — устойчивость HTTP-клиентов: retry, circuit-breaker, bulkhead, таймауты (worker host).
+* __Refit / Refit.HttpClientFactory__ — декларативные HTTP-клиенты с интеграцией в IHttpClientFactory (админ-панель).
