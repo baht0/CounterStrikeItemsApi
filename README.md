@@ -12,13 +12,32 @@
 * Контейнеризация: Docker, Docker Compose
 * ORM: EF Core
 
+## Структура
+* CounterStrikeItemsApi                    -> ASP.NET Core 9 Web API (entrypoint)
+* CounterStrikeItemsApi.Application        -> Сервисы, DTO, интерфейсы, маппинг
+* CounterStrikeItemsApi.Domain             -> Сущности, интерфейсы
+* CounterStrikeItemsApi.Infrastructure     -> EF Core, репозитории, фабрики
+* WebAdminPanel                            -> Админ панель на Blazor WASM
+* WorkerHost                               -> Хост для фоновых сервисов
+* Workers                                  -> Background services
+
 ## Быстрый старт (локально)
 1. Склонировать репозиторий:
 ```
 git clone https://github.com/baht0/CounterStrikeItemsApi.git
 cd CounterStrikeItemsApi
 ```
-2. Создать .env.docker:
+2. Выполнить миграцию в директории проекта (*.sln):
+```
+dotnet ef migrations add InitialCreate `
+  --project CounterStrikeItemsApi.Infrastructure `
+  --startup-project CounterStrikeItemsApi
+
+dotnet ef database update `
+  --project CounterStrikeItemsApi.Infrastructure `
+  --startup-project CounterStrikeItemsApi
+```
+3. Создать `.env.docker`:
 ```
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DbConnection=Host=<CHANGE>;Port=<CHANGE>;Database=<CHANGE>;Username=<CHANGE>;Password=<CHANGE>
@@ -29,4 +48,38 @@ Jwt__Key=<CHANGE>
 Jwt__Issuer=<CHANGE>
 Jwt__Audience=<CHANGE>
 Steam__ApiKey=<CHANGE>
+```
+4. Заменить API URL на ваш в `appsettings.json`, `appsettings.Development.json` и `appsettings.Production.json`:
+```
+{
+  "ApiUrl": "https://localhost:5000/api"
+}
+```
+5. Собрать через Docker Compose:
+```
+docker-compose up -d --build
+```
+
+## Сборка
+Для CounterStrikeItemsApi.API и WorkerHost необходимо использовать переменные среды [Secret Manager](https://learn.microsoft.com/ru-ru/aspnet/core/security/app-secrets?view=aspnetcore-9.0&tabs=windows#secret-manager).
+### CounterStrikeItemsApi.API:
+```
+{
+  "ASPNETCORE_ENVIRONMENT": "Development",
+  "ConnectionStrings:DbConnection": "Host=<CHANGE>;Port=<CHANGE>;Database=<CHANGE>;Username=<CHANGE>;Password=<CHANGE>",
+  "ConnectionStrings:Redis": "localhost:6379",
+  "Steam:ApiKey": "<CHANGE>",
+  "Jwt:Key": "<CHANGE>=",
+  "Jwt:Issuer": "<CHANGE>",
+  "Jwt:Audience": "<CHANGE>",
+  "AdminCredentials:Username": "<CHANGE>",
+  "AdminCredentials:Password": "<CHANGE>"
+}
+```
+### WorkerHost:
+```
+{
+  "ASPNETCORE_ENVIRONMENT": "Development",
+  "ConnectionStrings:DbConnection": "Host=<CHANGE>;Port=<CHANGE>;Database=<CHANGE>;Username=<CHANGE>;Password=<CHANGE>"
+}
 ```
