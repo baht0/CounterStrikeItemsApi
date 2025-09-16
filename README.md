@@ -36,7 +36,7 @@
 git clone https://github.com/baht0/CounterStrikeItemsApi.git
 cd CounterStrikeItemsApi
 ```
-2. Выполнить миграцию в директории проекта (*.sln):
+2. Выполнить миграцию в директории проекта `*.sln`:
 ```
 dotnet ef migrations add InitialCreate `
   --project CounterStrikeItemsApi.Infrastructure `
