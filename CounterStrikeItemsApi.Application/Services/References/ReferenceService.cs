@@ -72,6 +72,9 @@ namespace CounterStrikeItemsApi.Application.Services.References
             var entity = _mapper.Map<TEntity>(dto);
             await _repository.AddAsync(entity);
             await _repository.SaveChangesAsync();
+
+            await _cache.RemoveAsync<TEntity>("all");
+
             return entity.Id;
         }
 
@@ -85,12 +88,17 @@ namespace CounterStrikeItemsApi.Application.Services.References
 
             _repository.Update(existing);
             await _repository.SaveChangesAsync();
+
+            await _cache.RemoveAsync<TEntity>(dto.Id.ToString());
         }
 
         public virtual async Task<bool> DeleteAsync(Guid id)
         {
             var deleted = await _repository.DeleteAsync(id);
             await _repository.SaveChangesAsync();
+
+            await _cache.RemoveAsync<TEntity>(id.ToString());
+
             return deleted;
         }
     }
