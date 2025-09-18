@@ -30,9 +30,9 @@ namespace WebAdminPanel.Components.Dialogs
         }
         private void Submit()
         {
-            string itemName = Item.Name;
+            string itemName = ItemCommonName;
             Item.ImageId = Item.ImageId?
-                .Replace("https://community.akamai.steamstatic.com/economy/image/", string.Empty)
+                .Replace("https://community.fastly.steamstatic.com/economy/image/", string.Empty)
                 .Replace("/360fx360f", string.Empty);
 
             var exteriorName = Exteriors.Find(x => x.Id == Item.ExteriorId)?.Name;
@@ -64,7 +64,7 @@ namespace WebAdminPanel.Components.Dialogs
                 && !categoryDto.Name.Equals("normal", StringComparison.CurrentCultureIgnoreCase))
                 parts.Add(categoryDto.Name);
 
-            parts.Add(ItemCommonName);
+            parts.Add(itemName);
 
             if (!string.IsNullOrWhiteSpace(exteriorName)
                 && !exteriorName.Equals("not painted", StringComparison.CurrentCultureIgnoreCase))

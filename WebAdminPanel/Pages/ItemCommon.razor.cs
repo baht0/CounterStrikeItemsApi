@@ -154,7 +154,10 @@ namespace WebAdminPanel.Pages
         {
             await DialogService.ShowFormDialogAsync<ItemDialog, ItemViewModel>(
                 "Add New Item",
-                new() { { x => x.Item, new ItemViewModel { Name = itemViewModel.Name, Status = ItemStatus.NewItem } } },
+                new() { 
+                    { x => x.Item, new ItemViewModel { Name = itemViewModel.Name, Status = ItemStatus.NewItem } },
+                    { x => x.ItemCommonName, itemViewModel.Name }
+                },
                 onSuccess: newItem =>
                 {
                     if (newItem != null)

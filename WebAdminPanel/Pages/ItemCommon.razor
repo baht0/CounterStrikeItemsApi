@@ -104,7 +104,7 @@ else
         <MudTabs Style="flex-grow: 1; overflow-y: auto;"
                  Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
             <!-- Items -->
-            <MudTabPanel Text="Items">
+            <MudTabPanel Text="@($"Items [{itemViewModel.Items.Count}]")">
                 <MudTable Items="itemViewModel.Items" FixedHeader="true" FixedFooter="true"
                           Dense="true" Hover="true" Elevation="0" Bordered="true" RowsPerPage="15"
                           Breakpoint="Breakpoint.Sm" Height="575px" SortLabel="Sort By">
@@ -164,7 +164,7 @@ else
                 </MudTable>
             </MudTabPanel>
             <!-- Containers -->
-            <MudTabPanel Text="Containers" Disabled="@(itemViewModel.Type.Name == "Container")">
+            <MudTabPanel Text="@($"Containers [{itemViewModel.Containers.Count}]")" Disabled="@(itemViewModel.Type.Name == "Container")">
                 <MudTable Items="itemViewModel.Containers" FixedHeader="true" Height="575px"
                           Dense="true" Hover="true" Elevation="0" Bordered="true" RowsPerPage="15"
                           Breakpoint="Breakpoint.Sm" Style="width: 100%;" SortLabel="Sort By">
