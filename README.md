@@ -13,6 +13,14 @@
 * База данных PostgreSQL и Redis для кэша
 * Полный контейнерный стек (Docker / Docker Compose)
 
+## Технологии
+* Runtime / Framework: .NET 9 / ASP.NET Core
+* Админ панель: Blazor WebAssembly (WASM)
+* База данных: PostgreSQL
+* Кэширование: Redis
+* Контейнеризация: Docker, Docker Compose
+* ORM: EF Core
+
 ## Структура
 * __CounterStrikeItemsApi__                    -> ASP.NET Core 9 Web API (entrypoint)
 * __CounterStrikeItemsApi.Application__        -> Сервисы, DTO, интерфейсы, маппинг
@@ -21,14 +29,6 @@
 * __WebAdminPanel__                            -> Админ панель на Blazor WASM
 * __WorkerHost__                               -> Хост для фоновых сервисов
 * __Workers__                                  -> Background services
-
-## Технологии
-* Runtime / Framework: .NET 9 / ASP.NET Core
-* Админ панель: Blazor WebAssembly (WASM)
-* База данных: PostgreSQL
-* Кэширование: Redis
-* Контейнеризация: Docker, Docker Compose
-* ORM: EF Core
 
 ## Быстрый старт (локально)
 __1.__ Склонировать репозиторий:
@@ -100,3 +100,7 @@ docker-compose up -d --build
 * __MudBlazor__ — UI-компоненты для Blazor WASM (админ-панель).
 * __Polly__ — устойчивость HTTP-клиентов: retry, circuit-breaker, bulkhead, таймауты (worker host).
 * __Refit / Refit.HttpClientFactory__ — декларативные HTTP-клиенты с интеграцией в IHttpClientFactory (админ-панель).
+
+## Структура данных:
+<img width="1138" height="770" alt="image" src="https://github.com/user-attachments/assets/53518259-447f-462e-93e7-21b504400212" />
+
